@@ -14,7 +14,8 @@ class IntroActivity : AbsBaseActivity() {
         super.onCreate(savedInstanceState)
 
         Handler().postDelayed(Runnable {
-            startActivity(Intent(this, MainActivity::class.java))}, 2000);
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()}, 2000);
     }
 
     override fun initView() {}
