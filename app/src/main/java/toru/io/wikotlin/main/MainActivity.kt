@@ -1,13 +1,16 @@
 package toru.io.wikotlin.main
 
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.support.v7.app.AppCompatActivity
+import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.ListView
-
+import android.widget.Toast
 import toru.io.wikotlin.R
 import toru.io.wikotlin.framework.ui.AbsBaseActivity
 import java.util.*
@@ -23,6 +26,7 @@ class MainActivity : AbsBaseActivity(){
 
     var appList: List<ApplicationInfo> by Delegates.notNull<List<ApplicationInfo>>()
 
+    var appCommandList = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,11 +35,31 @@ class MainActivity : AbsBaseActivity(){
     override fun initView() {
         appList = getInstalledAppList()
         appListView = findViewById(R.id.app_listview) as ListView
-        appListView.setOnItemClickListener { adapterView, view, i, l -> openApp(appList[i].packageName)}
+        appListView.isLongClickable = true
+        appListView.setOnItemClickListener { adapterView, view, i, l ->
+            openApp(appList[i].packageName)
+        }
+        appListView.setOnItemLongClickListener { parent, view, position, id ->
+            var builder : AlertDialog.Builder = AlertDialog.Builder(ctx)
+            builder.setTitle("Notice!")
+                    .setMessage("App you selected will be deleted. Are you sure?")
+                    .setNegativeButton("No",
+                            DialogInterface.OnClickListener {
+                                dialogInterface, i ->  dialogInterface.dismiss()})
+                    .setPositiveButton("YES",
+                            DialogInterface.OnClickListener {
+                                dialogInterface, i -> deleteApp(appList[position].packageName)})
+                    .create().show()
+
+            return@setOnItemLongClickListener true
+        }
         appListAdapter = InstalledAppAdapter(ctx, appList)
 
         appListView.adapter = appListAdapter
         appListAdapter.notifyDataSetChanged()
+
+        appCommandList.add("Run selected app")
+        appCommandList.add("Delete selected app")
     }
 
     override fun initToolbar() { }
@@ -61,5 +85,11 @@ class MainActivity : AbsBaseActivity(){
         } catch (e: PackageManager.NameNotFoundException) {
             return false
         }
+    }
+
+    private fun deleteApp(packageName:String){
+        var deleteAppUri = Uri.parse("package:" + packageName)
+        var deleteIntent = Intent(Intent.ACTION_DELETE).setData(deleteAppUri)
+        startActivity(deleteIntent)
     }
 }
