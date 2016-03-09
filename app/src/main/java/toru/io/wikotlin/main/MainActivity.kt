@@ -69,7 +69,16 @@ class MainActivity : AbsBaseActivity(){
     }
 
     private fun getInstalledAppList(): List<ApplicationInfo> {
-        return ctx.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+
+        var tempList:List<ApplicationInfo> = ctx.packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        var installedAppList:ArrayList<ApplicationInfo>  = ArrayList<ApplicationInfo>()
+        // check system app or not
+        for(info in tempList){
+            if((info.flags and ApplicationInfo.FLAG_SYSTEM) == 0){
+                installedAppList.add(info)
+            }
+        }
+        return installedAppList
     }
 
     private fun openApp(packageName:String): Boolean {
