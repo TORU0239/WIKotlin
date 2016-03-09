@@ -39,20 +39,19 @@ class MainActivity : AbsBaseActivity(){
         appListView.setOnItemClickListener { adapterView, view, i, l ->
             openApp(appList[i].packageName)
         }
-        appListView.setOnItemLongClickListener { parent, view, position, id ->
-            var builder : AlertDialog.Builder = AlertDialog.Builder(ctx)
-            builder.setTitle("Notice!")
-                    .setMessage("App you selected will be deleted. Are you sure?")
-                    .setNegativeButton("No",
-                            DialogInterface.OnClickListener {
-                                dialogInterface, i ->  dialogInterface.dismiss()})
-                    .setPositiveButton("YES",
-                            DialogInterface.OnClickListener {
-                                dialogInterface, i -> deleteApp(appList[position].packageName)})
-                    .create().show()
 
-            return@setOnItemLongClickListener true
-        }
+        appListView.setOnItemLongClickListener { adapterView, view, i, l ->
+            AppSeletectActionDialog(ctx, appCommandList, object:OnDialogItemSelectListener{
+                override fun onSelectedAction(position: Int) {
+                    when(position){
+                        0 -> openApp(appList[i].packageName)
+                        1 -> deleteApp(appList[i].packageName)
+                    }
+                }
+
+            }).show()
+            return@setOnItemLongClickListener true }
+
         appListAdapter = InstalledAppAdapter(ctx, appList)
 
         appListView.adapter = appListAdapter
@@ -100,5 +99,9 @@ class MainActivity : AbsBaseActivity(){
         var deleteAppUri = Uri.parse("package:" + packageName)
         var deleteIntent = Intent(Intent.ACTION_DELETE).setData(deleteAppUri)
         startActivity(deleteIntent)
+    }
+
+    interface OnDialogItemSelectListener {
+        fun onSelectedAction(position:Int)
     }
 }
