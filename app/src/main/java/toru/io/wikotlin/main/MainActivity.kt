@@ -1,16 +1,12 @@
 package toru.io.wikotlin.main
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import android.view.View
 import android.widget.ListView
-import android.widget.Toast
 import toru.io.wikotlin.R
 import toru.io.wikotlin.framework.ui.AbsBaseActivity
 import java.util.*
@@ -44,7 +40,7 @@ class MainActivity : AbsBaseActivity(){
             AppSeletectActionDialog(ctx, appCommandList, object:OnDialogItemSelectListener{
                 override fun onSelectedAction(position: Int) {
                     when(position){
-                        0 -> openApp(appList[i].packageName)
+                        0 -> openAppInfo(appList[i].packageName)
                         1 -> deleteApp(appList[i].packageName)
                     }
                 }
@@ -57,7 +53,7 @@ class MainActivity : AbsBaseActivity(){
         appListView.adapter = appListAdapter
         appListAdapter.notifyDataSetChanged()
 
-        appCommandList.add("Run selected app")
+        appCommandList.add("Open App Info Page")
         appCommandList.add("Delete selected app")
     }
 
@@ -93,6 +89,13 @@ class MainActivity : AbsBaseActivity(){
         } catch (e: PackageManager.NameNotFoundException) {
             return false
         }
+    }
+
+    private fun openAppInfo(packageName:String){
+        var appInfoIntent = Intent()
+        appInfoIntent.action = android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        appInfoIntent.data = Uri.parse("package:" + packageName)
+        startActivity(appInfoIntent)
     }
 
     private fun deleteApp(packageName:String){
